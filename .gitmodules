@@ -1,0 +1,3 @@
+[submodule "handlers"]
+	path = handlers
+	url = https://github.com/marcielmsousa/handlers.git
