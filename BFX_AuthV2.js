@@ -1,6 +1,5 @@
 const CryptoJS = require('crypto-js')
 const request = require('request')
-const handler = require('./handlers')
 require('dotenv').config()
 
 module.exports = {

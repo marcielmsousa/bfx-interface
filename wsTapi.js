@@ -74,11 +74,11 @@ async function connWatchdog() {
     let waitingTime = 10 * 1000
     while (true) {
         connWatchdogRunning = true
-        await handlers.sleep(waitingTime, false)
+        await (new Promise( res => setTimeout(res, waitingTime)))
 
         switch (true) {
             case !connecting && wsConn.readyState != 1:
-                console.error(`${new Date().toISOString()} - No connection to server`)
+                error(`${new Date().toISOString()} - No connection to server`)
                 connect()
                 break
 
