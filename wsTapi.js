@@ -1,11 +1,14 @@
 const crypto = require('crypto-js')
 const websocket = require('ws')
 require('dotenv').config()
-const handlers = require('./handlers')
-handlers.fileOrDirectoryExists('./logs').then(exists => { if (!exists) handlers.createDir('./logs') })
+const fs = require('fs')
+
+
+fileOrDirectoryExists('./logs').then(exists => { if (!exists) createDir('./logs') })
+
 const error = err => {
     console.error(err)
-    handlers.appendFile(
+    appendFile(
         './logs/wsTapi.js.error.log',
         `\n${new Date().toISOString} - ${err}`
     )
@@ -74,11 +77,11 @@ async function connWatchdog() {
     let waitingTime = 10 * 1000
     while (true) {
         connWatchdogRunning = true
-        await handlers.sleep(waitingTime, false)
+        await (new Promise( res => setTimeout(res, waitingTime)))
 
         switch (true) {
             case !connecting && wsConn.readyState != 1:
-                console.error(`${new Date().toISOString()} - No connection to server`)
+                error(`${new Date().toISOString()} - No connection to server`)
                 connect()
                 break
 
@@ -87,4 +90,33 @@ async function connWatchdog() {
                 break
         }
     }
+}
+
+function fileOrDirectoryExists(filePath){
+	return new Promise( res => {
+		fs.access( filePath, fs.constants.F_OK, err => {
+			if(err){
+				res(false)
+			}else{
+				res(true)
+			}
+		})
+	})
+}
+
+function createDir(directoryName){
+	fs.mkdirSync( `${process.cwd()}/${directoryName}`, {recursive: true}, err => {
+		if(err){
+			log(err)
+		}
+	})
+}
+
+function appendFile(path, content, callback) {
+	fs.appendFile(path != undefined ? path : './output', content, err => {
+		if (err) {
+			error(`Error -->  ${err}`)
+		}
+		if (typeof callback === 'function') callback(path, content)
+	})
 }

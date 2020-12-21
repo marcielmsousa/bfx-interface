@@ -2,7 +2,6 @@ const msg = log => {console.log(log)}
 const bfxTapiV2 = require('./BFX_AuthV2')
 const bfxTapiV1 = require('./BFX_AuthV1')
 const enums = require('./Enums')
-const handlers = require('./handlers')
 
 module.exports = {
 	
@@ -142,13 +141,14 @@ async function transferAllBalances( fromWallet, toWallet ){
 		await readWallets().then( result => {
 			wallets = result
 		}).catch(reject => { msg (reject)})
+		/*
 		await handlers.paramsPromise().then( params => {
 			currenciesToIgnore = params.currencies_to_ignore
 		})
-		//log(wallets)
+		*/
 		queue = []
 		wallets.forEach( wallet => {
-			ignoreCurrency = handlers.isOnArray( currenciesToIgnore, wallet.currency )
+			ignoreCurrency = isOnArray( currenciesToIgnore, wallet.currency )
 			if(!ignoreCurrency && wallet.type == fromWallet ){
 				queue.push({
 					currency: wallet.currency,
@@ -168,7 +168,7 @@ async function transferAllBalances( fromWallet, toWallet ){
 		if(queue.length > 0 || errorOccured){
 			//Max req/min on walletsV1 endpoint = 10
 			let sleepTimeMillis = 60/10*1000
-			await handlers.sleep( sleepTimeMillis )
+			await sleep( sleepTimeMillis )
 		}else{
 			msg('No more balances to move')
 			break
@@ -176,6 +176,22 @@ async function transferAllBalances( fromWallet, toWallet ){
 	}while(true)
 	return new Promise( resolve => { resolve(0) } ) 
 }
+
+function sleep(millis){
+	return new Promise( res => setTimeout(millis, res))
+}
+
+function isOnArray(arr, item) {
+	let arrItem;
+	for (let index in arr) {
+		arrItem = arr[index];
+		if (arrItem === item) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 function transferCurrency(transferParameters) {
 	let body = {
