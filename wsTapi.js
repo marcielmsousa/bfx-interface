@@ -30,7 +30,7 @@ function isConnected(){
 }
 
 function send(arg) {
-    wsConn.send(arg)
+    wsConn.send(JSON.stringify(arg))
 }
 
 function interface(cb) {
