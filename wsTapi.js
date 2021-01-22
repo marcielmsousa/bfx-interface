@@ -21,7 +21,12 @@ var connWatchdogRunning = false
 
 module.exports = {
     interface: interface,
-    send: send
+    send: send,
+    isConnected: isConnected
+}
+
+function isConnected(){
+    return wsConn.readyState == 1
 }
 
 function send(arg) {
